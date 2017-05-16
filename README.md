@@ -40,4 +40,4 @@ _Examples of common tasks_
 
 ## License
 
-MIT
+GNU GPL v3

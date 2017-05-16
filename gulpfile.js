@@ -5,8 +5,8 @@ var runseq = require('run-sequence');
 var tslint = require('gulp-tslint');
 
 var paths = {
-  tscripts : { src : ['app/src/**/*.ts'],
-        dest : 'app/build' }
+  tscripts : { src : ['./app/src/**/*.ts', 'config.ts'],
+        dest : './app/build' }
 };
 
 gulp.task('default', ['lint', 'buildrun']);
@@ -14,7 +14,7 @@ gulp.task('default', ['lint', 'buildrun']);
 // ** Running ** //
 
 gulp.task('run', shell.task([
-  'node app/build/index.js'
+  'node app/build/app/src/index.js'
 ]));
 
 gulp.task('buildrun', function (cb) {
@@ -39,7 +39,8 @@ gulp.task('compile:typescript', function () {
   .src(paths.tscripts.src)
   .pipe(tsc({
     module: "commonjs",
-    emitError: false
+    emitError: false,
+    sourceMap: true
   }))
   .pipe(gulp.dest(paths.tscripts.dest));
 });

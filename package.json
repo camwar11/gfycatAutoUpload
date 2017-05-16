@@ -2,23 +2,24 @@
   "name": "gfycat-auto-uploader",
   "version": "0.0.0",
   "author": "Cameron Warner",
-  "license": "GNU GPLv3",
-
+  "license": "GPL-3.0",
   "main": "app/build/index.js",
-
-  "dependencies": {},
-
-  "devDependencies": {
-    "gulp": "^3.6.2",
-    "gulp-tsc": "^0.10.1",
-    "gulp-shell": "^0.4.2",
-    "gulp-tslint": "^2.0.0",
-    "run-sequence":"^1.1.1",
-    "mocha" : "*"
+  "dependencies": {
+    "typed-rest-client": "^0.10.0"
   },
-
-  "scripts" : {
-    "main" : "gulp buildrun",
-    "test": "gulp build && mocha"
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-tsc": "^1.3.2",
+    "gulp-shell": "^0.6.3",
+    "gulp-tslint": "^8.0.0",
+    "run-sequence": "^1.2.2",
+    "typescript": "^2.3.2",
+    "tslint": "^5.2.0",
+    "mocha": "*"
+  },
+  "scripts": {
+    "main": "gulp buildrun",
+    "test": "gulp build && mocha",
+    "start": "node app/build/app/src/index.js"
   }
 }

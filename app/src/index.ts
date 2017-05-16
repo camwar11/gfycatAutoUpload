@@ -1,6 +1,5 @@
+import { Authenticator } from "./Authentication";
 
-import App = require("./app");
-
-var greeter = new App.Controller("Whatup");
-
-greeter.greet();
+let authenticator = new Authenticator("https://api.gfycat.com");
+console.log("pre auth");
+authenticator.Authenticate();
