@@ -8,7 +8,11 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/app/build/app/src/index.js"
+            "program": "${workspaceRoot}/app/src/index.ts",
+            "outFiles": [
+                "${workspaceRoot}/app/build/**/*"
+            ],
+            "sourceMaps": true
         }
     ]
 }

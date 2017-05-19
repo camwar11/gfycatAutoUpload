@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "author": "Cameron Warner",
   "license": "GPL-3.0",
-  "main": "app/build/index.js",
+  "main": "app/build/app/src/index.js",
   "dependencies": {
+    "tsc-watch": "^1.0.5",
     "typed-rest-client": "^0.10.0"
   },
   "devDependencies": {
@@ -18,7 +19,7 @@
     "mocha": "*"
   },
   "scripts": {
-    "main": "gulp buildrun",
+    "compile": "tsc -watch -p ./",
     "test": "gulp build && mocha",
     "start": "node app/build/app/src/index.js"
   }

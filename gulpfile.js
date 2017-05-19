@@ -40,7 +40,8 @@ gulp.task('compile:typescript', function () {
   .pipe(tsc({
     module: "commonjs",
     emitError: false,
-    sourceMap: true
+    sourceMap: true,
+    target: "ES2015"
   }))
   .pipe(gulp.dest(paths.tscripts.dest));
 });
