@@ -10,4 +10,24 @@ let apiConfig: ApiConfig = {
 
 let authenticator = new GfycatClient(apiConfig);
 console.log("pre auth");
-authenticator.Authenticate();
+
+authenticator.UploadVideo("test")
+.then(() => {
+    console.log("Done");
+})
+.catch((reason) => {
+    console.error(reason);
+});
+
+// authenticator.Authenticate().then(() => {
+//     console.log("Done");
+// })
+// .then(() => {
+//     authenticator.UploadVideo("test");
+// })
+// .then(() => {
+//     console.log("Done");
+// })
+// .catch((reason) => {
+//     console.error(reason);
+// });

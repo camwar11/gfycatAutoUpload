@@ -5,7 +5,6 @@
   "license": "GPL-3.0",
   "main": "app/build/app/src/index.js",
   "dependencies": {
-    "tsc-watch": "^1.0.5",
     "typed-rest-client": "^0.10.0"
   },
   "devDependencies": {
@@ -16,7 +15,10 @@
     "run-sequence": "^1.2.2",
     "typescript": "^2.3.2",
     "tslint": "^5.2.0",
-    "mocha": "*"
+    "mocha": "*",
+    "typings": "^2.1.1",
+  "@types/node": "^7.0.21",
+    "tsc-watch": "^1.0.5"
   },
   "scripts": {
     "compile": "tsc -watch -p ./",
