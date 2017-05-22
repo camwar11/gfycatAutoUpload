@@ -1,7 +1,9 @@
+import * as fs from "fs";
 import * as http from "http";
-import { IHttpResponse, IRequestHandler } from "typed-rest-client/Interfaces";
+import { IHeaders, IHttpResponse, IRequestHandler } from "typed-rest-client/Interfaces";
 import * as HttpClient from "typed-rest-client/HTTPClient";
 import { Config } from "../../config";
+import * as FormData from "form-data";
 
 export interface ApiConfig {
     clientId: string;
@@ -40,6 +42,8 @@ interface Title {
 interface UploadKeyResponse {
     gfyname: string;
     secret: string;
+    uploadType: string;
+    isOk: boolean;
 }
 
 class HTTPError {
@@ -49,6 +53,11 @@ class HTTPError {
     public static isHttpError(object: any): object is HTTPError {
         return (<HTTPError>object).errorCode !== undefined;
     }
+}
+
+enum RequestType {
+    POST,
+    Upload
 }
 
 export class GfycatClient {
@@ -71,18 +80,34 @@ export class GfycatClient {
         });
     }
 
-    public UploadVideo(title: string): Promise<void> {
+    public UploadVideo(title: string, stream: NodeJS.ReadableStream): Promise<void> {
         let self = this;
         return this.Post<UploadKeyResponse>(GfycatClient._baseURL + "gfycats", { "title": title })
         .then((value) => {
             console.log(value);
+
+            let data: FormData = new FormData();
+            data.append("key", value.gfyname);
+            data.append("file", stream, {fileName: value.gfyname});
+
+            return self.SendStream<void>("https://" + value.uploadType, data);
         });
     }
 
     public Post<T>(url: string, payload: any, autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient): Promise<T> {
+        return this.Request<T>(RequestType.POST, url, payload, true, autoAuth, httpClient);
+    }
+
+    public SendStream<T>(url: string, stream: NodeJS.ReadableStream, autoAuth: boolean = true,
+                        httpClient: HttpClient.HttpClient = this._httpClient) {
+        return this.Request<T>(RequestType.Upload, url, stream, false, autoAuth, httpClient);
+    }
+
+    private Request<T>(type: RequestType, url: string, payload: any, jsonifyPayload: boolean = true,
+            autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient): Promise<T> {
         let self = this;
         return new Promise<T>((resolve, reject) => {
-            let data = JSON.stringify(payload);
+            let data = jsonifyPayload ? JSON.stringify(payload) : payload;
             let starter: Promise<void>;
             if (autoAuth === true) {
                 starter = self._authenticator.Authenticate();
@@ -90,30 +115,40 @@ export class GfycatClient {
                 starter = Promise.resolve();
             }
 
-            return starter.then(() => {
-                httpClient.post(url, data).then((response) => {
-                    if (response.message.statusCode !== HttpClient.HttpCodes.OK) {
-                        if (response.message.statusCode === HttpClient.HttpCodes.Unauthorized && autoAuth) {
-                            return self._authenticator.Authenticate();
-                        }
+            let request: Promise<HttpClient.HttpClientResponse>;
+            switch (type) {
+                case RequestType.POST:
+                    request = starter.then(() => { return httpClient.post(url, data); });
+                    break;
+                case RequestType.Upload:
+                    request = starter.then(() => { return httpClient.sendStream("POST", url, data); });
+                    break;
+                default:
+                    throw Error("Unknown request type: " + type);
+            }
 
-                        let errorMessage = new HTTPError(<HttpClient.HttpCodes>response.message.statusCode, response.message.statusMessage);
-                        reject(errorMessage);
+            return request.then((response) => {
+                if (response.message.statusCode !== HttpClient.HttpCodes.OK) {
+                    if (response.message.statusCode === HttpClient.HttpCodes.Unauthorized && autoAuth) {
+                        return self._authenticator.Authenticate();
+                    }
+
+                    let errorMessage = new HTTPError(<HttpClient.HttpCodes>response.message.statusCode, response.message.statusMessage);
+                    reject(errorMessage);
+                    return;
+                }
+
+                let value = response.message;
+                response.readBody().then((body) => {
+                    let result = JSON.parse(body);
+                    let parsedResponse = result as T;
+
+                    if (parsedResponse === undefined) {
+                        reject("Response was not in expected format.");
                         return;
                     }
 
-                    let value = response.message;
-                    response.readBody().then((body) => {
-                        let result = JSON.parse(body);
-                        let parsedResponse = result as T;
-
-                        if (parsedResponse === undefined) {
-                            reject("Response was not in expected format.");
-                            return;
-                        }
-
-                        resolve(parsedResponse);
-                    });
+                    resolve(parsedResponse);
                 });
             });
         });

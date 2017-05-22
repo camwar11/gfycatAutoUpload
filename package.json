@@ -5,6 +5,8 @@
   "license": "GPL-3.0",
   "main": "app/build/app/src/index.js",
   "dependencies": {
+    "@types/form-data": "0.0.33",
+    "form-data": "^2.1.4",
     "typed-rest-client": "^0.10.0"
   },
   "devDependencies": {
@@ -17,7 +19,7 @@
     "tslint": "^5.2.0",
     "mocha": "*",
     "typings": "^2.1.1",
-  "@types/node": "^7.0.21",
+    "@types/node": "^7.0.21",
     "tsc-watch": "^1.0.5"
   },
   "scripts": {
