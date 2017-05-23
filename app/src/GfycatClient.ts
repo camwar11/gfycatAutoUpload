@@ -47,7 +47,7 @@ interface UploadKeyResponse {
 }
 
 class HTTPError {
-    constructor(public errorCode: HttpClient.HttpCodes, message: string) {
+    constructor(public errorCode: HttpClient.HttpCodes, private message: string, private body: string) {
     }
 
     public static isHttpError(object: any): object is HTTPError {
@@ -83,14 +83,27 @@ export class GfycatClient {
     public UploadVideo(title: string, stream: NodeJS.ReadableStream): Promise<void> {
         let self = this;
         return this.Post<UploadKeyResponse>(GfycatClient._baseURL + "gfycats", { "title": title })
-        .then((value) => {
+        .then(async (value) => {
             console.log(value);
 
             let data: FormData = new FormData();
             data.append("key", value.gfyname);
             data.append("file", stream, {fileName: value.gfyname});
 
-            return self.SendStream<void>("https://" + value.uploadType, data);
+            return new Promise<void>((resolve, reject) => {
+                data.submit("https://" + value.uploadType, (error, response: IHttpResponse) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                if (response.statusCode !== 204) {
+                    reject("Bad status code: " + response.statusCode);
+                }
+
+                resolve();
+                });
+            });
         });
     }
 
@@ -99,12 +112,12 @@ export class GfycatClient {
     }
 
     public SendStream<T>(url: string, stream: NodeJS.ReadableStream, autoAuth: boolean = true,
-                        httpClient: HttpClient.HttpClient = this._httpClient) {
-        return this.Request<T>(RequestType.Upload, url, stream, false, autoAuth, httpClient);
+                        httpClient: HttpClient.HttpClient = this._httpClient, additionalHeaders?: IHeaders) {
+        return this.Request<T>(RequestType.Upload, url, stream, false, autoAuth, httpClient, additionalHeaders);
     }
 
     private Request<T>(type: RequestType, url: string, payload: any, jsonifyPayload: boolean = true,
-            autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient): Promise<T> {
+            autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient, additionalHeaders?: IHeaders): Promise<T> {
         let self = this;
         return new Promise<T>((resolve, reject) => {
             let data = jsonifyPayload ? JSON.stringify(payload) : payload;
@@ -121,7 +134,8 @@ export class GfycatClient {
                     request = starter.then(() => { return httpClient.post(url, data); });
                     break;
                 case RequestType.Upload:
-                    request = starter.then(() => { return httpClient.sendStream("POST", url, data); });
+                    request = starter.then(() => {
+                        return httpClient.sendStream("POST", url, data, additionalHeaders); });
                     break;
                 default:
                     throw Error("Unknown request type: " + type);
@@ -133,8 +147,12 @@ export class GfycatClient {
                         return self._authenticator.Authenticate();
                     }
 
-                    let errorMessage = new HTTPError(<HttpClient.HttpCodes>response.message.statusCode, response.message.statusMessage);
-                    reject(errorMessage);
+                    response.readBody().then((body) => {
+                        let errorMessage = new HTTPError(<HttpClient.HttpCodes>response.message.statusCode,
+                        response.message.statusMessage, body);
+                        reject(errorMessage);
+                    });
+
                     return;
                 }
 
@@ -159,7 +177,7 @@ class Authenticator implements IRequestHandler {
     private _authResponse: TokenResponsePayload;
     private _passwordGrantPayload: PasswordGrantPayload;
     private _lastResponseTime: number;
-    private _httpClient = new HttpClient.HttpClient("GfycatUploader");
+    public _httpClient = new HttpClient.HttpClient("GfycatUploader");
 
     constructor(private _baseURL: string, private _gfycatClient: GfycatClient, private _apiConfig: ApiConfig) {
         this._baseURL = this._baseURL + "oauth/token";
@@ -205,7 +223,9 @@ class Authenticator implements IRequestHandler {
             throw new Error("Needs auth.");
         }
 
-        options.headers.Authorization = "Bearer " + this._authResponse.access_token;
+        if (options.headers.Authorization === undefined) {
+            options.headers.Authorization = "Bearer " + this._authResponse.access_token;
+        }
     }
 
     public canHandleAuthentication(res: IHttpResponse): boolean {
