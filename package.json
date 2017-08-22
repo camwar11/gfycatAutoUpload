@@ -6,7 +6,8 @@
   "main": "app/build/app/src/index.js",
   "dependencies": {
     "form-data": "^2.1.4",
-    "typed-rest-client": "^0.10.0"
+    "typed-rest-client": "^0.10.0",
+    "watchr": "^3.0.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { Config } from '../../config';
 import { ApiConfig, GfycatClient } from './GfycatClient';
+import { FileWatcher } from './FileWatcher';
 
 let apiConfig: ApiConfig = {
     clientId: Config.id,
@@ -12,15 +13,18 @@ let apiConfig: ApiConfig = {
 let authenticator = new GfycatClient(apiConfig);
 console.log('pre auth');
 
-let stream = fs.createReadStream('C:\\Users\\cam11\\Videos\\Overwolf\\Replay HUD\\Rocket League 05-21-2017 2-10-35-125.mp4');
-
-authenticator.UploadVideo('test', stream)
-.then(() => {
-    console.log('Done');
-})
-.catch((reason) => {
-    console.error(reason);
+let watcher = new FileWatcher('C:\\Users\\cam11\\Videos\\Rocket League', (path) => {
+    let stream = fs.createReadStream(path);
+    authenticator.UploadVideo('NewAutoUpload', stream)
+    .then(() => {
+        console.log('Done');
+    })
+    .catch((reason) => {
+        console.error(reason);
+    });
 });
+
+
 
 // authenticator.Authenticate().then(() => {
 //     console.log("Done");
