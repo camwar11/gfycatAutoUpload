@@ -1,9 +1,9 @@
-import * as fs from "fs";
-import * as http from "http";
-import { IHeaders, IHttpResponse, IRequestHandler } from "typed-rest-client/Interfaces";
-import * as HttpClient from "typed-rest-client/HTTPClient";
-import { Config } from "../../config";
-import * as FormData from "form-data";
+import * as fs from 'fs';
+import * as http from 'http';
+import { IHeaders, IHttpResponse, IRequestHandler } from 'typed-rest-client/Interfaces';
+import * as HttpClient from 'typed-rest-client/HTTPClient';
+import { Config } from '../../config';
+import * as FormData from 'form-data';
 
 export interface ApiConfig {
     clientId: string;
@@ -13,14 +13,14 @@ export interface ApiConfig {
 }
 
 class PasswordGrantPayload {
-    grant_type = "password";
+    grant_type = 'password';
 
     constructor(public client_id: string, public client_secret: string, public username: string, public password: string) {
     }
 }
 
 class RefreshTokenPayload {
-    grant_type = "refresh";
+    grant_type = 'refresh';
     constructor(public client_id: string, public client_secret: string, public refresh_token: string) {
     }
 }
@@ -62,43 +62,43 @@ enum RequestType {
 
 export class GfycatClient {
     private _httpClient: HttpClient.HttpClient;
-    private static readonly _baseURL = "https://api.gfycat.com/v1/";
+    private static readonly _baseURL = 'https://api.gfycat.com/v1/';
     private _authenticator: Authenticator;
     private _accessToken: string;
 
     constructor(private Config: ApiConfig) {
         this._authenticator = new Authenticator(GfycatClient._baseURL, this, Config);
-        this._httpClient = new HttpClient.HttpClient("GfycatUploader", [this._authenticator]);
+        this._httpClient = new HttpClient.HttpClient('GfycatUploader', [this._authenticator]);
     }
 
     public Authenticate(): Promise<void> {
         let self = this;
         return this._authenticator.Authenticate().then((token) => {
-            console.log("Got access token: " + token);
+            console.log('Got access token: ' + token);
         }).catch((reason) => {
-            console.error("Auth failed " + reason);
+            console.error('Auth failed ' + reason);
         });
     }
 
     public UploadVideo(title: string, stream: NodeJS.ReadableStream): Promise<void> {
         let self = this;
-        return this.Post<UploadKeyResponse>(GfycatClient._baseURL + "gfycats", { "title": title })
+        return this.Post<UploadKeyResponse>(GfycatClient._baseURL + 'gfycats', { 'title': title })
         .then(async (value) => {
             console.log(value);
 
             let data: FormData = new FormData();
-            data.append("key", value.gfyname);
-            data.append("file", stream, {fileName: value.gfyname});
+            data.append('key', value.gfyname);
+            data.append('file', stream, {fileName: value.gfyname});
 
             return new Promise<void>((resolve, reject) => {
-                data.submit("https://" + value.uploadType, (error, response: IHttpResponse) => {
+                data.submit('https://' + value.uploadType, (error, response: IHttpResponse) => {
                 if (error) {
                     reject(error);
                     return;
                 }
 
                 if (response.statusCode !== 204) {
-                    reject("Bad status code: " + response.statusCode);
+                    reject('Bad status code: ' + response.statusCode);
                 }
 
                 resolve();
@@ -135,10 +135,10 @@ export class GfycatClient {
                     break;
                 case RequestType.Upload:
                     request = starter.then(() => {
-                        return httpClient.sendStream("POST", url, data, additionalHeaders); });
+                        return httpClient.sendStream('POST', url, data, additionalHeaders); });
                     break;
                 default:
-                    throw Error("Unknown request type: " + type);
+                    throw Error('Unknown request type: ' + type);
             }
 
             return request.then((response) => {
@@ -162,7 +162,7 @@ export class GfycatClient {
                     let parsedResponse = result as T;
 
                     if (parsedResponse === undefined) {
-                        reject("Response was not in expected format.");
+                        reject('Response was not in expected format.');
                         return;
                     }
 
@@ -177,10 +177,10 @@ class Authenticator implements IRequestHandler {
     private _authResponse: TokenResponsePayload;
     private _passwordGrantPayload: PasswordGrantPayload;
     private _lastResponseTime: number;
-    public _httpClient = new HttpClient.HttpClient("GfycatUploader");
+    public _httpClient = new HttpClient.HttpClient('GfycatUploader');
 
     constructor(private _baseURL: string, private _gfycatClient: GfycatClient, private _apiConfig: ApiConfig) {
-        this._baseURL = this._baseURL + "oauth/token";
+        this._baseURL = this._baseURL + 'oauth/token';
         this._passwordGrantPayload = new PasswordGrantPayload(_apiConfig.clientId, _apiConfig.clientSecret,
             _apiConfig.userName, _apiConfig.password);
         this._lastResponseTime = Number.MIN_SAFE_INTEGER;
@@ -190,15 +190,15 @@ class Authenticator implements IRequestHandler {
         let currentTime = Date.now();
         if (this.NeedsAuthentication()) {
             return this.GetAccessToken().then((token) => {
-                console.log("Authenticated");
+                console.log('Authenticated');
             });
         } else if (this.NeedsRefresh()) {
             return this.RefreshToken().then((token) => {
-                console.log("Refreshed Authentication");
+                console.log('Refreshed Authentication');
             }).catch((reason) => {
                 if (HTTPError.isHttpError(reason)) {
                     return this.GetAccessToken().then((token) => {
-                        console.log("Authenticated");
+                        console.log('Authenticated');
                     });
                 } else {
                     return Promise.reject(reason);
@@ -220,11 +220,11 @@ class Authenticator implements IRequestHandler {
 
     public prepareRequest(options: http.RequestOptions): void {
         if (this.NeedsAuthentication() || this.NeedsRefresh()) {
-            throw new Error("Needs auth.");
+            throw new Error('Needs auth.');
         }
 
         if (options.headers.Authorization === undefined) {
-            options.headers.Authorization = "Bearer " + this._authResponse.access_token;
+            options.headers.Authorization = 'Bearer ' + this._authResponse.access_token;
         }
     }
 
