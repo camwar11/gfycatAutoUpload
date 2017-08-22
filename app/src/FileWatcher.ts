@@ -1,10 +1,15 @@
 var watchr = require('watchr');
 export class FileWatcher {
+    private _stalker: any;
 
     constructor(private _dir: string, private _onCreateHandler: (path: string) => void) {
-        var stalker = watchr.open(_dir, (changeType: any, fullPath: string, currentStat: any, previousStat: any) =>
+        this._stalker = watchr.open(_dir, (changeType: any, fullPath: string, currentStat: any, previousStat: any) =>
                 this.listener(changeType, fullPath, currentStat, previousStat, _onCreateHandler),
             (err: any) => this.next(err, _dir));
+    }
+
+    public dispose() {
+        this._stalker.close();
     }
 
     private listener (changeType: any, fullPath: string, currentStat: any, previousStat: any, onCreateHandler: (path: string) => void) {
