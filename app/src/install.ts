@@ -5,7 +5,7 @@ import * as path from 'path';
 var svc = new Service({
   name: 'Gfycat Uploader',
   description: 'Automatically uploads videos to Gfycat.com',
-  script: path.join(__dirname, 'index.js')
+  script: path.join(__dirname, '../../../bin/www')
 });
 
 // Listen for the "install" event, which indicates the

@@ -1,3 +1,5 @@
+import { Settings } from './controllers/settingsController';
+import { Wrapper } from './';
 import * as express from 'express';
 import * as path from 'path';
 import * as favicon from 'serve-favicon';
@@ -5,13 +7,19 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import {indexRouter} from './routes/index';
-import {usersRouter} from './routes/users';
+import {settingsRouter} from './routes/settings';
+import * as storage from 'node-persist';
 
 interface ExpressError extends Error {
   status?: number;
 }
 
 var app = express();
+
+storage.initSync();
+let settings: Settings = storage.getItemSync('settings');
+export let wrapper: Wrapper = new Wrapper(settings);
+wrapper.start();
 
 // view engine setup
 app.set('views', path.join(__dirname, '../../..', 'views'));
@@ -26,7 +34,7 @@ app.use(cookieParser('secretSecretsAreNoFun'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/settings', settingsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
