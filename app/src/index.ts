@@ -11,11 +11,18 @@ export class Wrapper {
 
     private _apiConfig: ApiConfig;
     constructor(public _settings: Settings) {
+        if (_settings === undefined) {
+            _settings = {
+                userName: Config.userName,
+                password: Config.password,
+                path: ''
+            };
+        }
         this._apiConfig = {
             clientId: Config.id,
             clientSecret: Config.secret,
-            userName: this._settings.userName,
-            password: this._settings.password
+            userName: _settings.userName,
+            password: _settings.password
         };
     }
 
@@ -44,6 +51,10 @@ export class Wrapper {
     public start(): void {
         let authenticator = new GfycatClient(this._apiConfig);
         console.log('pre auth');
+
+        if (this._settings === undefined || this._settings.path === '') {
+            return;
+        }
 
         let watcher = new FileWatcher(this._settings.path, (path) => {
             let stream = fs.createReadStream(path);
