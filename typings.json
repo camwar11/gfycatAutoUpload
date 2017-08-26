@@ -1,0 +1,8 @@
+{
+  "globalDependencies": {
+    "pug": "registry:dt/pug#2.0.0+20161229235626"
+  },
+  "globalDevDependencies": {
+    "mocha": "registry:dt/mocha#2.2.5+20170311011848"
+  }
+}

@@ -7,8 +7,18 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Install As Service",
+            "program": "${workspaceRoot}/app/build/app/src/install.js",
+            "outFiles": [
+                "${workspaceRoot}/app/build/**/*"
+            ],
+            "sourceMaps": true
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/app/src/index.ts",
+            "program": "${workspaceRoot}/bin/www",
             "outFiles": [
                 "${workspaceRoot}/app/build/**/*"
             ],
