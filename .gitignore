@@ -33,3 +33,4 @@ app/build
 config.ts
 .node-persist
 app/bin/daemon
+out/
