@@ -1,8 +1,10 @@
 {
   "globalDependencies": {
+    "electron-devtools-installer": "registry:dt/electron-devtools-installer#2.0.1+20161005184000",
     "pug": "registry:dt/pug#2.0.0+20161229235626"
   },
   "globalDevDependencies": {
+    "electron": "registry:dt/electron#1.4.8+20170316233216",
     "mocha": "registry:dt/mocha#2.2.5+20170311011848"
   }
 }

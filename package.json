@@ -2,14 +2,19 @@
   "name": "gfycat-auto-uploader",
   "version": "0.0.1",
   "author": "Cameron Warner",
-  "keywords": ["gfycat", "video", "upload", "gif"],
+  "keywords": [
+    "gfycat",
+    "video",
+    "upload",
+    "gif"
+  ],
   "license": "GPL-3.0",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "lint": "eslint src"
+    "lint": "tslint src"
   },
   "config": {
     "forge": {
@@ -48,11 +53,15 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
     "electron-compile": "^6.4.1",
+    "electron-devtools-installer": "^2.0.1",
     "express": "~4.15.2",
     "form-data": "^2.1.4",
     "morgan": "~1.8.1",
     "node-persist": "^2.1.0",
     "pug": "~2.0.0-beta11",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-hot-loader": "^3.0.0-beta.6",
     "serve-favicon": "~2.4.2",
     "typed-rest-client": "^0.10.0",
     "watchr": "^3.0.1"
@@ -67,8 +76,10 @@
     "@types/node-persist": "0.0.32",
     "@types/serve-favicon": "^2.2.29",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "electron": "^1.7.5",
     "electron-forge": "^3.2.0",
     "electron-prebuilt-compile": "1.7.5",
     "eslint": "^3.19.0",
