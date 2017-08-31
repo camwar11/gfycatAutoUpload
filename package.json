@@ -9,7 +9,7 @@
     "gif"
   ],
   "license": "GPL-3.0",
-  "main": "src/index.ts",
+  "main": "src/main.ts",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
