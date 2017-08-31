@@ -6,7 +6,8 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "app/build/",
-        "sourceMap": true
+        "sourceMap": true,
+        "jsx": "react"
     },
     "include": [
         "app/src/**/*"

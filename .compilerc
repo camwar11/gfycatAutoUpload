@@ -17,6 +17,9 @@
           "transform-async-to-generator", "transform-es2015-classes", "react-hot-loader/babel"
         ],
         "sourceMaps": "inline"
+      },
+      "text/tsx": {
+        "jsx": "react"
       }
     },
     "production": {
@@ -36,6 +39,9 @@
           "transform-async-to-generator", "transform-es2015-classes"
         ],
         "sourceMaps": "none"
+      },
+      "text/tsx": {
+        "jsx": "react"
       }
     }
   }
