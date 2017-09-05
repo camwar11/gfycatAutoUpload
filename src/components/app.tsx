@@ -1,23 +1,17 @@
+import Settings from './settings';
 import * as React from 'react';
-import Input from './input';
-import { default as List, Items } from './list';
+import {BrowserRouter, Switch, Route} from 'react-router-dom';
+import Home from './home';
 
 export default class App extends React.Component {
   render() {
-    let myList: Items<string> = {
-      items: new Array<string>(),
-      mapper: (item) => { return <Input label={item} />; }
-    };
-
-    myList.items.push('one');
-    myList.items.push('two');
-    myList.items.push('three');
-
     return (
-      <div>
-        <h2>Welcome to React!</h2>
-        <List {...myList}/>
-      </div>
+      <BrowserRouter>
+        <Switch>
+          <Route path='/settings' component={Settings} />
+          <Route path='/' component={Home} />
+        </Switch>
+      </BrowserRouter>
     );
   }
 }

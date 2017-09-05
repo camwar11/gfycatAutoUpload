@@ -1,0 +1,11 @@
+.breadcrumb-item:before {
+    content: ">";
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    content: ">";
+}
+
+nav {
+    font-size: .75rem
+}

@@ -24,15 +24,13 @@ export default class List<T> extends React.Component<Items<T>, any> {
       keyfinder = List.noMapping;
     }
     const mapped = this.props.items.map((value) => {
-      return <li key={keyfinder(value)}>{mapper(value)}</li>;
+      return <li className='list-group-item' key={keyfinder(value)}>{mapper(value)}</li>;
     });
 
     return (
-      <div>
-          <ul>
-            {mapped}
-          </ul>
-      </div>
+      <ul className='list-group'>
+        {mapped}
+      </ul>
     );
   }
 }

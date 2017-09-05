@@ -1,7 +1,9 @@
 {
   "globalDependencies": {
     "electron-devtools-installer": "registry:dt/electron-devtools-installer#2.0.1+20161005184000",
-    "pug": "registry:dt/pug#2.0.0+20161229235626"
+    "pug": "registry:dt/pug#2.0.0+20161229235626",
+    "react-router": "registry:dt/react-router#4.0.0+20170323201651",
+    "redux": "registry:dt/redux#3.5.2+20160703092728"
   },
   "globalDevDependencies": {
     "electron": "registry:dt/electron#1.4.8+20170316233216",

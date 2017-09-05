@@ -17,6 +17,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 1000,
+    title: 'GfycatAutoUploader'
   });
 
   // and load the index.html of the app.
@@ -34,6 +35,11 @@ const createWindow = async () => {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
+  });
+
+  // Stop pages from hi-jacking the title.
+  mainWindow.on('page-title-updated', (event) => {
+    event.preventDefault();
   });
 };
 
