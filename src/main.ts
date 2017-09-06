@@ -1,10 +1,11 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Tray, Menu } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let icon;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -15,9 +16,17 @@ if (isDevMode) {
 const createWindow = async () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 1000,
-    title: 'GfycatAutoUploader'
+    width: 800,
+    height: 600,
+    resizable: false,
+    title: 'GfycatAutoUploader',
+    modal: true,
+    autoHideMenuBar: true,
+    center: true,
+    titleBarStyle: 'hidden',
+    darkTheme: true,
+    backgroundColor: '#37393d',
+    frame: false
   });
 
   // and load the index.html of the app.
@@ -43,10 +52,18 @@ const createWindow = async () => {
   });
 };
 
+const createTrayIcon = () => {
+  icon = new Tray(`${__dirname}/../images/tray-icon.png`);
+  icon.setToolTip('Gfycat Auto Uploader');
+};
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createTrayIcon();
+  return createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

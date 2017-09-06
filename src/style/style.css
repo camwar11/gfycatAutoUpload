@@ -9,3 +9,11 @@
 nav {
     font-size: .75rem
 }
+
+button {
+    -webkit-app-region: no-drag
+}
+
+.btn {
+    -webkit-app-region: no-drag
+}
