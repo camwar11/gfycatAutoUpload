@@ -14,7 +14,8 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "lint": "tslint src"
+    "lint": "tslint src",
+    "postinstall": "./node_modules/.bin/electron-rebuild"
   },
   "config": {
     "forge": {
@@ -56,6 +57,7 @@
     "electron-devtools-installer": "^2.0.1",
     "express": "~4.15.2",
     "form-data": "^2.1.4",
+    "keytar": "^4.0.4",
     "lodash": "^4.17.4",
     "morgan": "~1.8.1",
     "node-persist": "^2.1.0",
@@ -95,6 +97,7 @@
     "electron-compilers": "^5.9.0",
     "electron-forge": "^3.2.0",
     "electron-prebuilt-compile": "1.7.5",
+    "electron-rebuild": "^1.6.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",

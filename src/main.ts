@@ -1,3 +1,4 @@
+import { SettingsHandler } from './settingsHandler';
 import { app, BrowserWindow, Tray, Menu } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
@@ -18,7 +19,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    resizable: false,
+    resizable: true,
     title: 'GfycatAutoUploader',
     modal: true,
     autoHideMenuBar: true,
@@ -84,3 +85,5 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+const settingsHandler = new SettingsHandler();

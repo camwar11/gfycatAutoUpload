@@ -17,3 +17,7 @@ button {
 .btn {
     -webkit-app-region: no-drag
 }
+
+form {
+    -webkit-app-region: no-drag
+}
