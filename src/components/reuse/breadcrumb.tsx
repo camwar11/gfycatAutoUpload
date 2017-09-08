@@ -19,8 +19,6 @@ export class BreadCrumb extends React.Component<BreadCrumbItems, any> {
         return <noscript />;
     }
 
-    console.log(this.props.history);
-
     return (
       <nav className='breadcrumb'>
         {this.props.items.map(val => {

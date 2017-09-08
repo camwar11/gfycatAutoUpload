@@ -1,11 +1,11 @@
 import * as React from 'react';
 import Input from './input';
 
-export default class Form extends React.Component<{handleSubmit?: (event: any) => void }, any> {
+export default class Form extends React.Component<{userName?: string, handleSubmit?: (event: any) => void }, any> {
   constructor(props) {
     super(props);
 
-    this.state = {userName: '', password: ''};
+    this.state = {userName: props.userName ? props.userName : '', password: ''};
   }
 
   render() {
@@ -13,7 +13,7 @@ export default class Form extends React.Component<{handleSubmit?: (event: any) =
       <div>
         <form onSubmit={this.onSubmit.bind(this)}>
           <div className='form-group'>
-            <Input label='User Name:' type='input' onChange={this.updateUserName.bind(this)}/>
+            <Input label='User Name:' type='input' value={this.state.userName} onChange={this.updateUserName.bind(this)}/>
           </div>
           <div className='form-group'>
             <Input label='Password:' type='password' onChange={this.updatePassword.bind(this)}/>
@@ -26,14 +26,12 @@ export default class Form extends React.Component<{handleSubmit?: (event: any) =
 
   updateUserName(value: string) {
     this.setState((prev) => {
-      console.log(`userName: ${value}`);
       return {...prev, userName: value};
     });
   }
 
   updatePassword(value: string) {
     this.setState((prev) => {
-      console.log(`password: ${value}`);
       return {...prev, password: value};
     });
   }

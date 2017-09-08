@@ -17,8 +17,8 @@ if (isDevMode) {
 const createWindow = async () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1400,
+    height: 900,
     resizable: true,
     title: 'GfycatAutoUploader',
     modal: true,

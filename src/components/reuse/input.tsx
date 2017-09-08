@@ -1,10 +1,11 @@
 import * as React from 'react';
 
-export default class Input extends React.Component<{label: string, type: string, onChange?: (value: string) => void }, any> {
+export default class Input extends React.Component<{label: string, type: string,
+  value?: string, onChange?: (value: string) => void }, any> {
   constructor(props) {
     super(props);
 
-    this.state = {value: ''};
+    this.state = {value: props.value ? props.value : ''};
   }
 
   render() {
