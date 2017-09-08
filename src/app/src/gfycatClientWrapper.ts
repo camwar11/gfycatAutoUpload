@@ -1,10 +1,10 @@
 import {GfycatClientSettings} from '../../settingsHandler';
 import * as fs from 'fs';
 import { Config } from '../../../config';
-import { ApiConfig, GfycatClient } from './GfycatClient';
-import { FileWatcher } from './FileWatcher';
+import { ApiConfig, GfycatClient } from './gfycatClient';
+import { FileWatcher } from './fileWatcher';
 
-export class Wrapper {
+export class GfycatClientWrapper {
 
     private static _watchers = new Array<FileWatcher>();
 
@@ -42,11 +42,11 @@ export class Wrapper {
     }
 
     public shutdown() {
-        let watcher = Wrapper._watchers.pop();
+        let watcher = GfycatClientWrapper._watchers.pop();
 
         while (watcher !== undefined) {
             watcher.dispose();
-            watcher = Wrapper._watchers.pop();
+            watcher = GfycatClientWrapper._watchers.pop();
         }
     }
 
@@ -69,7 +69,7 @@ export class Wrapper {
                     console.error(reason);
                 });
             });
-            Wrapper._watchers.push(watcher);
+            GfycatClientWrapper._watchers.push(watcher);
         });
     }
 }
