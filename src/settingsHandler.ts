@@ -26,19 +26,19 @@ interface IpcEvent {
 export class SettingsHandler {
     private readonly SERVICE_NAME = 'GfycatAutoUploader';
     private _settings: GfycatClientSettings;
-    private _listeners: Array<(GfycatClientSettings) => void>;
+    private _listeners: Array<(val: GfycatClientSettings) => void>;
 
     constructor() {
-        this._listeners = new Array<(GfycatClientSettings) => void>();
+        this._listeners = new Array<(val: GfycatClientSettings) => void>();
         let self = this;
 
         ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettingsFromRender) => {
             console.log('settings changed');
             keyTar.setPassword(self.SERVICE_NAME, arg.userName, arg.password);
             self._settings = { ...arg, password: self.getPassword};
-            // self._listeners.forEach((val) => {
-            //     val(self._settings);
-            // });
+            self._listeners.forEach((val) => {
+                val(self._settings);
+            });
         });
 
         ipcMain.on(GET_USERNAME, (event: IpcEvent, arg: any) => {
@@ -62,17 +62,17 @@ export class SettingsHandler {
         });
     }
 
-    subscribeToSettingsChanged(listener: (GfycatClientSettings) => void) {
+    subscribeToSettingsChanged(listener: (val: GfycatClientSettings) => void) {
         this._listeners.push(listener);
     }
 
-    unsubscribeToSettingsChanged(listener: (GfycatClientSettings) => void) {
+    unsubscribeToSettingsChanged(listener: (val: GfycatClientSettings) => void) {
         _.remove(this._listeners, (item) => {
             return item === listener;
         });
     }
 
     removeAllListeners() {
-        this._listeners = new Array<(GfycatClientSettings) => void>();
+        this._listeners = new Array<(val: GfycatClientSettings) => void>();
     }
 }

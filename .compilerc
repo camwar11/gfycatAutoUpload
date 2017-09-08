@@ -19,11 +19,13 @@
         "sourceMaps": "inline"
       },
       "text/typescript": {
-        "sourceMap": "true",
-        "inlineSourceMap": "true",
-        "inlineSources": "true"
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "jsx": "react"
       },
       "text/tsx": {
+        "inlineSourceMap": true,
+        "inlineSources": true,
         "jsx": "react"
       }
     },
@@ -46,7 +48,22 @@
         "sourceMaps": "none"
       },
       "text/typescript": {
-        "sourceMap": "false"
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "declaration": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "noUnusedParameters": true,
+        "sourceMap": false,
+        "importHelpers": true,
+        "noEmitHelpers": true,
+        "experimentalDecorators": true,
+        "target": "es2015",
+        "jsx": "react"
       },
       "text/tsx": {
         "jsx": "react"

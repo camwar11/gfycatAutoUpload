@@ -1,12 +1,12 @@
 import { GfycatClientWrapper } from './app/src/gfycatClientWrapper';
 import { SettingsHandler } from './settingsHandler';
-import { app, BrowserWindow, Tray, Menu } from 'electron';
+import * as Electron from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+let mainWindow: Electron.BrowserWindow;
 let icon;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
@@ -17,7 +17,7 @@ if (isDevMode) {
 
 const createWindow = async () => {
   // Create the browser window.
-  mainWindow = new BrowserWindow({
+  mainWindow = new Electron.BrowserWindow({
     width: 1400,
     height: 900,
     resizable: true,
@@ -55,28 +55,28 @@ const createWindow = async () => {
 };
 
 const createTrayIcon = () => {
-  icon = new Tray(`${__dirname}/../images/tray-icon.png`);
+  icon = new Electron.Tray(`${__dirname}/../images/tray-icon.png`);
   icon.setToolTip('Gfycat Auto Uploader');
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', () => {
+Electron.app.on('ready', () => {
   createTrayIcon();
   return createWindow();
 });
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
+Electron.app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    Electron.app.quit();
   }
 });
 
-app.on('activate', () => {
+Electron.app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
