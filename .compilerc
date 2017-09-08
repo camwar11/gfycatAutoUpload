@@ -18,6 +18,11 @@
         ],
         "sourceMaps": "inline"
       },
+      "text/typescript": {
+        "sourceMap": "true",
+        "inlineSourceMap": "true",
+        "inlineSources": "true"
+      },
       "text/tsx": {
         "jsx": "react"
       }
@@ -39,6 +44,9 @@
           "transform-async-to-generator", "transform-es2015-classes"
         ],
         "sourceMaps": "none"
+      },
+      "text/typescript": {
+        "sourceMap": "false"
       },
       "text/tsx": {
         "jsx": "react"

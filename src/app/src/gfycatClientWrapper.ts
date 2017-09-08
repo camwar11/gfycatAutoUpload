@@ -51,6 +51,7 @@ export class GfycatClientWrapper {
     }
 
     public start(): void {
+        console.log('start called');
         let authenticator = new GfycatClient(this._apiConfig);
         console.log('pre auth');
 

@@ -1,3 +1,4 @@
+import { GfycatClientWrapper } from './app/src/gfycatClientWrapper';
 import { SettingsHandler } from './settingsHandler';
 import { app, BrowserWindow, Tray, Menu } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
@@ -87,3 +88,6 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 const settingsHandler = new SettingsHandler();
+const wrapper = new GfycatClientWrapper(settingsHandler.getSettings());
+settingsHandler.subscribeToSettingsChanged((val) => wrapper.updateSettings(val));
+wrapper.start();
