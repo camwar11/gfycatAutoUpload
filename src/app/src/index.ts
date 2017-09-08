@@ -1,21 +1,20 @@
-import { Settings } from './controllers/settingsController';
+import {GfycatClientSettings} from '../../settingsHandler';
 import * as fs from 'fs';
-import { Config } from '../../config';
+import { Config } from '../../../config';
 import { ApiConfig, GfycatClient } from './GfycatClient';
 import { FileWatcher } from './FileWatcher';
-import * as storage from 'node-persist';
 
 export class Wrapper {
 
     private static _watchers = new Array<FileWatcher>();
 
     private _apiConfig: ApiConfig;
-    constructor(public _settings: Settings) {
+    constructor(public _settings: GfycatClientSettings) {
         if (_settings === undefined) {
             _settings = {
                 userName: Config.userName,
-                password: Config.password,
-                path: ''
+                password: () => Promise.resolve(''),
+                paths: []
             };
         }
         this._apiConfig = {
@@ -26,7 +25,7 @@ export class Wrapper {
         };
     }
 
-    public updateSettings(settings: Settings) {
+    public updateSettings(settings: GfycatClientSettings) {
         this._settings = settings;
         this._apiConfig = {
             clientId: Config.id,
@@ -38,36 +37,40 @@ export class Wrapper {
     }
 
     public restart() {
+        this.shutdown();
+        this.start();
+    }
+
+    public shutdown() {
         let watcher = Wrapper._watchers.pop();
 
         while (watcher !== undefined) {
             watcher.dispose();
             watcher = Wrapper._watchers.pop();
         }
-
-        this.start();
     }
 
     public start(): void {
         let authenticator = new GfycatClient(this._apiConfig);
         console.log('pre auth');
 
-        if (this._settings === undefined || this._settings.path === '') {
+        if (this._settings === undefined || this._settings.paths === undefined) {
             return;
         }
 
-        let watcher = new FileWatcher(this._settings.path, (path) => {
-            let stream = fs.createReadStream(path);
-            authenticator.UploadVideo('NewAutoUpload', stream)
-            .then(() => {
-                console.log('Done');
-            })
-            .catch((reason) => {
-                console.error(reason);
+        this._settings.paths.forEach((watchPath) => {
+            let watcher = new FileWatcher(watchPath, (path) => {
+                let stream = fs.createReadStream(path);
+                authenticator.UploadVideo('NewAutoUpload', stream)
+                .then(() => {
+                    console.log('Done');
+                })
+                .catch((reason) => {
+                    console.error(reason);
+                });
             });
+            Wrapper._watchers.push(watcher);
         });
-
-        Wrapper._watchers.push(watcher);
     }
 }
 

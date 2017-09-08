@@ -4,9 +4,17 @@ import * as keyTar from 'keytar';
 export const SETTINGS_CHANGED = 'settings-changed';
 export const GET_USERNAME = 'get-username';
 
-export interface GfycatClientSettings {
-    userName: string;
+export interface GfycatClientSettingsFromRender extends SettingsBase {
     password: string;
+}
+
+interface SettingsBase {
+    userName: string;
+    paths: string[];
+}
+
+export interface GfycatClientSettings extends SettingsBase {
+    password: () => Promise<string>;
 }
 
 interface IpcEvent {
@@ -19,9 +27,9 @@ export class SettingsHandler {
     private _settings: GfycatClientSettings;
 
     constructor() {
-        ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettings) => {
-            this._settings = arg;
+        ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettingsFromRender) => {
             keyTar.setPassword(this.SERVICE_NAME, arg.userName, arg.password);
+            this._settings = { ...arg, password: this.getPassword};
         });
 
         ipcMain.on(GET_USERNAME, (event: IpcEvent, arg: any) => {
@@ -29,15 +37,12 @@ export class SettingsHandler {
         });
     }
 
-    getSettings(): Promise<GfycatClientSettings> {
-        // We don't really want to keep the password around in memory forever
-        // so just get it on demand.
-        return this.getPassword()
-            .then((value) => {
-                return {...this._settings, password: value};
-            });
+    getSettings(): GfycatClientSettings {
+        return this._settings;
     }
 
+    // We don't really want to keep the password around in memory forever
+    // so just get it on demand.
     getPassword(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             if (!this._settings || !this._settings.userName) {
