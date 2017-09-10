@@ -1,15 +1,13 @@
-import * as fs from 'fs';
 import * as http from 'http';
 import { IHeaders, IHttpResponse, IRequestHandler } from 'typed-rest-client/Interfaces';
 import * as HttpClient from 'typed-rest-client/HTTPClient';
-import { Config } from '../../config';
 import * as FormData from 'form-data';
 
 export interface ApiConfig {
     clientId: string;
     clientSecret: string;
     userName: string;
-    password: string;
+    password: () => Promise<string>;
 }
 
 class PasswordGrantPayload {
@@ -66,8 +64,8 @@ export class GfycatClient {
     private _authenticator: Authenticator;
     private _accessToken: string;
 
-    constructor(private Config: ApiConfig) {
-        this._authenticator = new Authenticator(GfycatClient._baseURL, this, Config);
+    constructor(private _config: ApiConfig) {
+        this._authenticator = new Authenticator(GfycatClient._baseURL, this, _config);
         this._httpClient = new HttpClient.HttpClient('GfycatUploader', [this._authenticator]);
     }
 
@@ -175,14 +173,11 @@ export class GfycatClient {
 
 class Authenticator implements IRequestHandler {
     private _authResponse: TokenResponsePayload;
-    private _passwordGrantPayload: PasswordGrantPayload;
     private _lastResponseTime: number;
     public _httpClient = new HttpClient.HttpClient('GfycatUploader');
 
     constructor(private _baseURL: string, private _gfycatClient: GfycatClient, private _apiConfig: ApiConfig) {
         this._baseURL = this._baseURL + 'oauth/token';
-        this._passwordGrantPayload = new PasswordGrantPayload(_apiConfig.clientId, _apiConfig.clientSecret,
-            _apiConfig.userName, _apiConfig.password);
         this._lastResponseTime = Number.MIN_SAFE_INTEGER;
     }
 
@@ -240,24 +235,30 @@ class Authenticator implements IRequestHandler {
 
     private GetAccessToken(): Promise<string> {
         let self = this;
-        return this._gfycatClient.Post<TokenResponsePayload>(this._baseURL, this._passwordGrantPayload, false, this._httpClient)
-        .then((value) => {
-            self._authResponse = value;
-            self._lastResponseTime = Date.now();
-            return value.access_token;
+        const apiConfig = this._apiConfig;
+
+        return apiConfig.password().then((password) => {
+            const payload = new PasswordGrantPayload(apiConfig.clientId, apiConfig.clientSecret, apiConfig.userName, password);
+            return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, payload, false, self._httpClient)
+                .then((value) => {
+                    self._authResponse = value;
+                    self._lastResponseTime = Date.now();
+                    return value.access_token;
+                });
         });
     }
 
     private RefreshToken(): Promise<string> {
         let self = this;
         let refreshPayload = new RefreshTokenPayload(this._apiConfig.clientId, this._apiConfig.clientSecret,
-            this._authResponse.refresh_token);
+            self._authResponse.refresh_token);
 
-        return this._gfycatClient.Post<TokenResponsePayload>(this._baseURL, refreshPayload, false, this._httpClient)
-        .then((value) => {
-            self._authResponse = value;
-            self._lastResponseTime = Date.now();
-            return value.access_token;
-        });
+        return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, refreshPayload, false, self._httpClient)
+            .then((value) => {
+                self._authResponse = value;
+                self._lastResponseTime = Date.now();
+                return value.access_token;
+            });
+
     }
 }

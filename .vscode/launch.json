@@ -5,24 +5,49 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Install As Service",
-            "program": "${workspaceRoot}/app/build/app/src/install.js",
-            "outFiles": [
-                "${workspaceRoot}/app/build/**/*"
-            ],
-            "sourceMaps": true
+          "type": "node",
+          "request": "launch",
+          "name": "Electron Main",
+          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-nix",
+          "windows": {
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd"
+          },
+          "sourceMaps": true,
+          "env": {
+            "OPEN_DEV_TOOLS": "true"
+          },
+          // runtimeArgs will be passed directly to your Electron application
+          "runtimeArgs": [
+           
+          ],
+          "cwd": "${workspaceRoot}"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}/bin/www",
-            "outFiles": [
-                "${workspaceRoot}/app/build/**/*"
+            "name": "Electron Main With Renderer Debugging",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-nix",
+            "windows": {
+              "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd"
+            },
+            "sourceMaps": true,
+            "env": {
+              "OPEN_DEV_TOOLS": "false"
+            },
+            // runtimeArgs will be passed directly to your Electron application
+            "runtimeArgs": [
+              "--enable-logging",
+              "--remote-debugging-port=9222"
             ],
-            "sourceMaps": true
-        }
+            "cwd": "${workspaceRoot}"
+          },
+          {
+            "name": "Attach to Renderer",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}"
+          }
     ]
 }

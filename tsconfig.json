@@ -6,10 +6,13 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "app/build/",
-        "sourceMap": true
+        "sourceMap": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "jsx": "react"
     },
     "include": [
-        "app/src/**/*"
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",
