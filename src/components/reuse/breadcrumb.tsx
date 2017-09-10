@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {Link} from 'react-router-dom';
+import {Breadcrumb, BreadcrumbItem} from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 export interface BreadCrumbItems {
   [key: string]: any;
@@ -14,7 +16,7 @@ export interface BreadCrumbItem {
 
 export class BreadCrumb extends React.Component<BreadCrumbItems, any> {
 
-  render() {
+  render_old() {
     if (!this.props.items) {
         return <noscript />;
     }
@@ -41,6 +43,24 @@ export class BreadCrumb extends React.Component<BreadCrumbItems, any> {
           }
         }) }
       </nav>
+    );
+  }
+
+  render() {
+    if (!this.props.items) {
+      return <noscript />;
+    }
+    return (
+      <Breadcrumb>
+        {this.props.items.map(val => {
+          return (
+            <LinkContainer key={val.name} to={val.route}>
+              <BreadcrumbItem active={val.active} title={val.name}>
+                {val.name}
+              </BreadcrumbItem>
+            </LinkContainer>);
+        }) }
+      </Breadcrumb>
     );
   }
 }
