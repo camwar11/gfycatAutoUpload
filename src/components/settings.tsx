@@ -2,12 +2,12 @@ import * as console from 'console';
 import Form from './reuse/form';
 import Input from './reuse/input';
 import { BreadCrumb } from './reuse/breadcrumb';
-import { GfycatClientSettings, SETTINGS_CHANGED, GET_USERNAME } from '../settingsHandler';
+import { GET_USERNAME, GfycatClientSettingsFromRender, SETTINGS_CHANGED } from '../settingsHandler';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 
 export default class Settings extends React.Component<any, {userName: string}> {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 
     this.state = {userName: this.getUsername()};
@@ -19,8 +19,6 @@ export default class Settings extends React.Component<any, {userName: string}> {
       {active: true, route: '/settings', name: 'Settings'}
     ];
 
-    console.log(`settingsRender: ${this.state.userName}`);
-
     return (
       <div className='container'>
         <BreadCrumb items={nav} />
@@ -30,8 +28,7 @@ export default class Settings extends React.Component<any, {userName: string}> {
     );
   }
 
-  handleSubmit(event: GfycatClientSettings) {
-    console.log(`settingsabc`);
+  handleSubmit(event: GfycatClientSettingsFromRender) {
     //history.pushState('/', 'Home');
     ipcRenderer.send(SETTINGS_CHANGED, event);
     this.updateUserName(event.userName);
