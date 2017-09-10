@@ -4,13 +4,13 @@ import * as _ from 'lodash';
 import Store = require('electron-store');
 
 export const SETTINGS_CHANGED = 'settings-changed';
-export const GET_USERNAME = 'get-username';
+export const GET_SETTINGS = 'get-settings';
 
 export interface GfycatClientSettingsFromRender extends SettingsBase {
     password: string;
 }
 
-interface SettingsBase {
+export interface SettingsBase {
     userName: string;
     paths: string[];
 }
@@ -55,8 +55,8 @@ export class SettingsHandler {
             });
         });
 
-        ipcMain.on(GET_USERNAME, (event: IpcEvent, arg: any) => {
-            event.returnValue = this._settings ? this._settings.userName : '';
+        ipcMain.on(GET_SETTINGS, (event: IpcEvent, arg: any) => {
+            event.returnValue = this._settings ? {userName: this._settings.userName, paths: this._settings.paths} : null;
         });
     }
 

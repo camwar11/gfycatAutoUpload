@@ -1,16 +1,15 @@
-import * as console from 'console';
 import Form from './reuse/form';
 import Input from './reuse/input';
 import { BreadCrumb } from './reuse/breadcrumb';
-import { GET_USERNAME, GfycatClientSettingsFromRender, SETTINGS_CHANGED } from '../settingsHandler';
+import { GET_SETTINGS, GfycatClientSettingsFromRender, SETTINGS_CHANGED, SettingsBase } from '../settingsHandler';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 
-export default class Settings extends React.Component<any, {userName: string}> {
+export default class Settings extends React.Component<any, {userName: string, paths: string[]}> {
   constructor(props: any) {
     super(props);
 
-    this.state = {userName: this.getUsername()};
+    this.state = this.getSavedSettings();
   }
 
   render() {
@@ -23,7 +22,7 @@ export default class Settings extends React.Component<any, {userName: string}> {
       <div className='container'>
         <BreadCrumb items={nav} />
         <h2>Welcome to Settings!</h2>
-        <Form userName={this.state.userName} handleSubmit={this.handleSubmit.bind(this)} />
+        <Form userName={this.state.userName} paths={this.state.paths} handleSubmit={this.handleSubmit.bind(this)} />
       </div>
     );
   }
@@ -31,16 +30,18 @@ export default class Settings extends React.Component<any, {userName: string}> {
   handleSubmit(event: GfycatClientSettingsFromRender) {
     //history.pushState('/', 'Home');
     ipcRenderer.send(SETTINGS_CHANGED, event);
-    this.updateUserName(event.userName);
+    this.updateState({userName: event.userName, paths: event.paths});
   }
 
-  getUsername(): string {
-    return ipcRenderer.sendSync(GET_USERNAME);
+  getSavedSettings(): SettingsBase {
+    return ipcRenderer.sendSync(GET_SETTINGS);
   }
 
-  updateUserName(value: string) {
+  updateState(value: SettingsBase) {
     this.setState((prev) => {
-      return {...prev, userName: value};
+      let newState = {...prev, userName: value.userName};
+      newState = {...newState, paths: [...value.paths]};
+      return newState;
     });
   }
 }

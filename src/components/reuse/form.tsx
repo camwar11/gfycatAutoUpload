@@ -1,9 +1,12 @@
+import FileChooser from './filechooser';
 import * as React from 'react';
 import Input from './input';
+import * as _ from 'lodash';
 
 interface FormProps {
   userName?: string;
   handleSubmit?: (event: any) => void;
+  paths?: string[];
 }
 
 interface FormState {
@@ -16,7 +19,10 @@ export default class Form extends React.Component<FormProps, FormState> {
   constructor(props: FormProps) {
     super(props);
 
-    this.state = {userName: props.userName ? props.userName : '', password: ''};
+    this.state = {
+      userName: props.userName ? props.userName : '',
+      password: '',
+      paths: props.paths ? props.paths : []};
   }
 
   render() {
@@ -30,7 +36,7 @@ export default class Form extends React.Component<FormProps, FormState> {
             <Input label='Password:' type='password' onChange={this.updatePassword.bind(this)}/>
           </div>
           {this.renderPathInputs()}
-          <button type='submit' className='btn btn-default'>Submit</button>
+          <button type='submit' className='btn btn-success'>Save</button>
         </form>
       </div>
     );
@@ -40,23 +46,25 @@ export default class Form extends React.Component<FormProps, FormState> {
     if (!this.state.paths) {
       return (
         <div className='form-group'>
-          <Input label='Watch Directory #1' type='file' onChange={(path) => this.updatePaths(0, path)} selectDirectory={true}/>;
+          <FileChooser key={0} label='Watch Directory #1' onChange={(path) => this.updatePaths(0, path)} selectDirectory={true}
+            onDelete={() => this.deletePath(0)}/>;
         </div>
       );
     }
 
-    const newIndex = this.state.paths.length + 1;
+    const newIndex = this.state.paths.length;
 
     return (
       <div className='form-group'>
         { this.state.paths.map((val, idx) => {
-              return <Input key={idx} label={`Watch Directory #${idx + 1}`} type='file'
-                onChange={(path) => this.updatePaths(idx, path)} selectDirectory={true}/>;
+              return <FileChooser key={idx} label={`Watch Directory #${idx + 1}`}
+                onChange={(path) => this.updatePaths(idx, path)} selectDirectory={true} value={val}
+                onDelete={() => this.deletePath(idx)}/>;
           })
         }
 
-        <Input key={newIndex} label={`Watch Directory #${newIndex}`} type='file' onChange={(path) => this.updatePaths(newIndex, path)}
-          selectDirectory={true}/>
+        <FileChooser key={newIndex} label={`Watch Directory #${newIndex + 1}`} onChange={(path) => this.updatePaths(newIndex, path)}
+          selectDirectory={true} onDelete={() => this.deletePath(newIndex)}/>
       </div>
     );
   }
@@ -73,6 +81,15 @@ export default class Form extends React.Component<FormProps, FormState> {
     });
   }
 
+  deletePath(index: number) {
+    this.setState((prev) => {
+      return {...prev,
+        paths: _.filter(prev.paths, (value, idx) => {
+          return index !== idx;
+      })};
+    });
+  }
+
   updatePaths(index: number, newValue: string) {
     this.setState((prev) => {
       if (!this.state.paths) {
@@ -85,6 +102,10 @@ export default class Form extends React.Component<FormProps, FormState> {
         }
         return val;
       });
+
+      if (index >= newPaths.length - 1) {
+        newPaths.push(newValue);
+      }
 
       return {...prev, paths: newPaths};
     });
