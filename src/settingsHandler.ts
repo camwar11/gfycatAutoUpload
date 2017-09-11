@@ -42,16 +42,16 @@ export class SettingsHandler {
         const savedSettings = this.retrieveSavedSettings();
 
         if (savedSettings) {
-            this._settings = { ...savedSettings, password: this.getPassword };
+            this._settings = { ...savedSettings, password: this.getPassword.bind(this) };
         }
 
         ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettingsFromRender) => {
             console.log('settings changed');
-            keyTar.setPassword(self.SERVICE_NAME, arg.userName, arg.password);
+            keyTar.setPassword(this.SERVICE_NAME, arg.userName, arg.password);
             this._store.set(this.SETTINGS, {userName: arg.userName, paths: arg.paths});
-            self._settings = { ...arg, password: self.getPassword};
-            self._listeners.forEach((val) => {
-                val(self._settings);
+            this._settings = { ...arg, password: this.getPassword.bind(this)};
+            this._listeners.forEach((val) => {
+                val(this._settings);
             });
         });
 
@@ -76,7 +76,12 @@ export class SettingsHandler {
                 reject('Username does not exist');
             }
 
-            return keyTar.getPassword(this.SERVICE_NAME, this._settings.userName);
+            keyTar.getPassword(this.SERVICE_NAME, this._settings.userName).then((value) => {
+                resolve(value);
+            })
+            .catch((err) => {
+                reject(err);
+            });
         });
     }
 
