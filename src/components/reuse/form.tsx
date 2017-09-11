@@ -57,7 +57,7 @@ export default class Form extends React.Component<FormProps, FormState> {
     return (
       <div className='form-group'>
         { this.state.paths.map((val, idx) => {
-              return <FileChooser key={idx} label={`Watch Directory #${idx + 1}`}
+              return <FileChooser key={val} label={`Watch Directory #${idx + 1}`}
                 onChange={(path) => this.updatePaths(idx, path)} selectDirectory={true} value={val}
                 onDelete={() => this.deletePath(idx)}/>;
           })
