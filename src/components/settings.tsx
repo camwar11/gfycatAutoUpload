@@ -13,14 +13,8 @@ export default class Settings extends React.Component<any, {userName: string, pa
   }
 
   render() {
-    const nav = [
-      {active: false, route: '/', name: 'Home'},
-      {active: true, route: '/settings', name: 'Settings'}
-    ];
-
     return (
-      <div className='container'>
-        <BreadCrumb items={nav} />
+      <div>
         <h2>Welcome to Settings!</h2>
         <Form userName={this.state.userName} paths={this.state.paths} handleSubmit={this.handleSubmit.bind(this)} />
       </div>

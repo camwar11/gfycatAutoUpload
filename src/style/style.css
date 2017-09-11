@@ -1,3 +1,22 @@
 button, .btn, form, a {
     -webkit-app-region: no-drag
 }
+
+body { 
+    padding-top: 50px;
+    color: rgba(163, 163, 163, 0.74);
+}
+
+#homeIcon {
+    height: 40px;
+    width: 40px;
+    vertical-align: middle;
+}
+
+.navbar-brand {
+    padding-top: 5px;
+}
+
+.navbar > div.container {
+    margin-left: 0px;
+}

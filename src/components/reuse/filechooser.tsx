@@ -41,9 +41,7 @@ export default class FileChooser extends React.Component<InputProps, any> {
 
   renderDeleteButton() {
     return <button className='btn btn-danger float-right' onClick={this.onDelete.bind(this)}><span className='glyphicon glyphicon-trash'>
-      </span>
-        Delete
-      </button>;
+      </span>&nbsp;Delete</button>;
   }
 
   openInput() {
