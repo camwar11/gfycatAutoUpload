@@ -1,15 +1,16 @@
 import { ipcMain } from 'electron';
 import * as keyTar from 'keytar';
 import * as _ from 'lodash';
+import Store = require('electron-store');
 
 export const SETTINGS_CHANGED = 'settings-changed';
-export const GET_USERNAME = 'get-username';
+export const GET_SETTINGS = 'get-settings';
 
 export interface GfycatClientSettingsFromRender extends SettingsBase {
     password: string;
 }
 
-interface SettingsBase {
+export interface SettingsBase {
     userName: string;
     paths: string[];
 }
@@ -25,25 +26,42 @@ interface IpcEvent {
 
 export class SettingsHandler {
     private readonly SERVICE_NAME = 'GfycatAutoUploader';
+    private readonly SETTINGS = 'settings';
+
     private _settings: GfycatClientSettings;
     private _listeners: Array<(val: GfycatClientSettings) => void>;
 
+    private _store: Store;
+
     constructor() {
         this._listeners = new Array<(val: GfycatClientSettings) => void>();
+        this._store = new Store();
+
         let self = this;
+
+        const savedSettings = this.retrieveSavedSettings();
+
+        if (savedSettings) {
+            this._settings = { ...savedSettings, password: this.getPassword.bind(this) };
+        }
 
         ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettingsFromRender) => {
             console.log('settings changed');
-            keyTar.setPassword(self.SERVICE_NAME, arg.userName, arg.password);
-            self._settings = { ...arg, password: self.getPassword};
-            self._listeners.forEach((val) => {
-                val(self._settings);
+            keyTar.setPassword(this.SERVICE_NAME, arg.userName, arg.password);
+            this._store.set(this.SETTINGS, {userName: arg.userName, paths: arg.paths});
+            this._settings = { ...arg, password: this.getPassword.bind(this)};
+            this._listeners.forEach((val) => {
+                val(this._settings);
             });
         });
 
-        ipcMain.on(GET_USERNAME, (event: IpcEvent, arg: any) => {
-            event.returnValue = this._settings ? this._settings.userName : '';
+        ipcMain.on(GET_SETTINGS, (event: IpcEvent, arg: any) => {
+            event.returnValue = this._settings ? {userName: this._settings.userName, paths: this._settings.paths} : null;
         });
+    }
+
+    private retrieveSavedSettings() {
+        return this._store.get(this.SETTINGS) as SettingsBase;
     }
 
     getSettings(): GfycatClientSettings {
@@ -58,7 +76,12 @@ export class SettingsHandler {
                 reject('Username does not exist');
             }
 
-            return keyTar.getPassword(this.SERVICE_NAME, this._settings.userName);
+            keyTar.getPassword(this.SERVICE_NAME, this._settings.userName).then((value) => {
+                resolve(value);
+            })
+            .catch((err) => {
+                reject(err);
+            });
         });
     }
 
