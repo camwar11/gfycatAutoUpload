@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { GfycatClientWrapper } from './app/src/gfycatClientWrapper';
 import { SettingsHandler } from './settingsHandler';
 import * as Electron from 'electron';
@@ -64,6 +65,15 @@ const createTrayIcon = () => {
 // Some APIs can only be used after this event occurs.
 Electron.app.on('ready', () => {
   createTrayIcon();
+
+  Electron.app.setLoginItemSettings({
+    openAtLogin: true,
+    path: process.execPath,
+    args: [
+      '--minimized'
+    ]
+  });
+
   return createWindow();
 });
 
