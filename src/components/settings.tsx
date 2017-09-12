@@ -28,7 +28,8 @@ export default class Settings extends React.Component<any, {userName: string, pa
   }
 
   getSavedSettings(): SettingsBase {
-    return ipcRenderer.sendSync(GET_SETTINGS);
+    let settings = ipcRenderer.sendSync(GET_SETTINGS);
+    return settings ? settings : {userName: '', paths: []};
   }
 
   updateState(value: SettingsBase) {
