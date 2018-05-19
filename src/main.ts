@@ -4,6 +4,7 @@ import { SettingsHandler } from './settingsHandler';
 import * as Electron from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
+import { MenuItem } from 'react-bootstrap';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -19,8 +20,8 @@ if (isDevMode) {
 const createWindow = async () => {
   // Create the browser window.
   mainWindow = new Electron.BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 900,
+    height: 700,
     resizable: true,
     title: 'GfycatAutoUploader',
     modal: true,
@@ -53,11 +54,36 @@ const createWindow = async () => {
   mainWindow.on('page-title-updated', (event) => {
     event.preventDefault();
   });
+
+  mainWindow.on('minimize', () => {
+    mainWindow.hide();
+  });
 };
 
 const createTrayIcon = () => {
   icon = new Electron.Tray(`${__dirname}/../images/tray-icon.png`);
   icon.setToolTip('Gfycat Auto Uploader');
+  icon.on('click', () => {
+    if (mainWindow != null) {
+      if (mainWindow.isVisible()) {
+        mainWindow.hide();
+      } else {
+        mainWindow.show();
+      }
+    } else {
+      createWindow();
+    }
+  });
+
+  let menu = new Electron.Menu();
+  menu.append(new Electron.MenuItem({label: 'Settings', click: handleSettingsClick}));
+  menu.append(new Electron.MenuItem({label: 'Exit', click: () => {Electron.app.quit(); }}));
+
+  icon.setContextMenu(menu);
+};
+
+const handleSettingsClick = (menuItem: Electron.MenuItem, browserWindow: Electron.BrowserWindow, event: Electron.Event) => {
+  createWindow();
 };
 
 // This method will be called when Electron has finished
@@ -77,14 +103,11 @@ Electron.app.on('ready', () => {
   return createWindow();
 });
 
-// Quit when all windows are closed.
+// We don't want to quit when all windows are closed, since the app is still running
+// in the tray. This needs to stay here and do nothing or else Electron kills the app.
 Electron.app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    Electron.app.quit();
-  }
-});
+  // do nothing
+ });
 
 Electron.app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the

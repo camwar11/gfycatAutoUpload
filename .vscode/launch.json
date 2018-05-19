@@ -8,10 +8,8 @@
           "type": "node",
           "request": "launch",
           "name": "Electron Main",
-          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-nix",
-          "windows": {
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd"
-          },
+          "console": "internalConsole",
+          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd",
           "sourceMaps": true,
           "env": {
             "OPEN_DEV_TOOLS": "true"
@@ -26,10 +24,7 @@
             "type": "node",
             "request": "launch",
             "name": "Electron Main With Renderer Debugging",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-nix",
-            "windows": {
-              "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd"
-            },
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-forge-vscode-win.cmd",
             "sourceMaps": true,
             "env": {
               "OPEN_DEV_TOOLS": "false"
