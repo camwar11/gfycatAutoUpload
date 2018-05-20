@@ -6,12 +6,17 @@ import { FileWatcher } from './fileWatcher';
 import * as path from 'path';
 import { ISimpleEvent, SimpleEventDispatcher } from 'strongly-typed-events';
 
+export interface VideoEvent {
+    title: string;
+    message: string;
+}
+
 export class GfycatClientWrapper {
 
     private _watchers = new Array<FileWatcher>();
     private _apiConfig: ApiConfig;
-    private _newVideoHandler: SimpleEventDispatcher<string>;
-    private _uploadedVideoHandler: SimpleEventDispatcher<string>;
+    private _newVideoHandler: SimpleEventDispatcher<VideoEvent>;
+    private _uploadedVideoHandler: SimpleEventDispatcher<VideoEvent>;
 
     constructor(public _settings: GfycatClientSettings) {
         if (_settings === undefined) {
@@ -32,11 +37,11 @@ export class GfycatClientWrapper {
         this._uploadedVideoHandler = new SimpleEventDispatcher();
     }
 
-    public get onNewVideoFound(): ISimpleEvent<string> {
+    public get onNewVideoFound(): ISimpleEvent<VideoEvent> {
         return this._newVideoHandler.asEvent();
     }
 
-    public get onVideoUploaded(): ISimpleEvent<string> {
+    public get onVideoUploaded(): ISimpleEvent<VideoEvent> {
         return this._uploadedVideoHandler.asEvent();
     }
 
@@ -78,18 +83,18 @@ export class GfycatClientWrapper {
 
         this._settings.paths.forEach((watchPath) => {
             let watcher = new FileWatcher(watchPath, (filePath) => {
-                self._newVideoHandler.dispatch(filePath);
+                self._newVideoHandler.dispatch({ title: 'Upload started', message: filePath});
 
                 let stream = fs.createReadStream(filePath);
 
                 authenticator.UploadVideo(path.basename(filePath, path.extname(filePath)), stream)
                 .then((gfycatName) => {
-                    self._newVideoHandler.dispatch(filePath);
+                    self._newVideoHandler.dispatch({ title: 'Upload finished', message: `Encoding started for ${gfycatName}`});
 
                     authenticator.WaitOnUploadComplete(gfycatName)
                     .then((done) => {
                         if (done) {
-                            self._uploadedVideoHandler.dispatch(gfycatName);
+                            self._newVideoHandler.dispatch({ title: 'Upload finished', message: `https://gfycat.com/${gfycatName}`});
                         }
                     });
 

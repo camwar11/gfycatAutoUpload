@@ -5,6 +5,7 @@ import * as Electron from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 import { MenuItem } from 'react-bootstrap';
+import { ISimpleEvent } from 'strongly-typed-events';
 
 
 export class UICreator {
@@ -69,6 +70,23 @@ export class UICreator {
     });
 
     return;
+  }
+
+  public sendTrayMessage(event: ISimpleEvent<{title: string, message: string}>): void {
+    let self = this;
+    event.sub((event) => {
+      // let notifcation = new Electron.Notification({
+      //   title: event.title,
+      //   body: event.message,
+      //   icon: `${__dirname}/../images/tray-icon.png`
+      // });
+      // notifcation.show();
+      self._trayIcon.displayBalloon({
+        title: event.title,
+        content: event.message,
+        icon: `${__dirname}/../images/tray-icon.png`
+      });
+    });
   }
 
   private createTrayIcon(): void {

@@ -18,6 +18,8 @@ Electron.app.on('ready', () => {
   });
 
   uiCreator = new UICreator();
+  uiCreator.sendTrayMessage(wrapper.onNewVideoFound);
+  uiCreator.sendTrayMessage(wrapper.onVideoUploaded);
 });
 
 // We don't want to quit when all windows are closed, since the app is still running
