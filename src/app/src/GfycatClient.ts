@@ -86,7 +86,7 @@ export class GfycatClient {
 
             let data: FormData = new FormData();
             data.append('key', value.gfyname);
-            data.append('file', stream, {fileName: value.gfyname});
+            data.append('file', stream, {filename: value.gfyname});
 
             return new Promise<void>((resolve, reject) => {
                 data.submit('https://' + value.uploadType, (error, response: IHttpResponse) => {

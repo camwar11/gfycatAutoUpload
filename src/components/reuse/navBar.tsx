@@ -13,6 +13,7 @@ export class GfycatUploaderNavBar extends React.Component<any, any> {
   render() {
     return (
       <Navbar inverse fixedTop>
+        <div id='electron-titlebar' className='drag'></div>
         <Navbar.Header>
           <Navbar.Brand>
               <Link to='/'>

@@ -12,7 +12,7 @@ export class GfycatClientWrapper {
     constructor(public _settings: GfycatClientSettings) {
         if (_settings === undefined) {
             _settings = {
-                userName: Config.userName,
+                userName: '',
                 password: () => Promise.resolve(''),
                 paths: []
             };
@@ -28,8 +28,8 @@ export class GfycatClientWrapper {
     public updateSettings(settings: GfycatClientSettings) {
         this._settings = settings;
         this._apiConfig = {
-            clientId: Config.id,
-            clientSecret: Config.secret,
+            clientId: this._apiConfig.clientId,
+            clientSecret: this._apiConfig.clientSecret,
             userName: this._settings.userName,
             password: this._settings.password
         };

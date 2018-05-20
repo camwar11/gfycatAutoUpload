@@ -3,12 +3,13 @@ import Settings from './settings';
 import * as React from 'react';
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import Home from './home';
+require('electron-titlebar');
 
 export default class App extends React.Component {
   render() {
     return (
         <BrowserRouter>
-          <div className='container'>
+          <div>
             <GfycatUploaderNavBar />
             <Switch>
               <Route path='/settings' component={Settings} />
