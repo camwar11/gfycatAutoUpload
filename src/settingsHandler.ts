@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import * as keyTar from 'keytar';
 import * as _ from 'lodash';
 import Store = require('electron-store');
+import { SimpleEventDispatcher, ISimpleEventHandler } from 'strongly-typed-events';
 
 export const SETTINGS_CHANGED = 'settings-changed';
 export const GET_SETTINGS = 'get-settings';
@@ -29,12 +30,12 @@ export class SettingsHandler {
     private readonly SETTINGS = 'settings';
 
     private _settings: GfycatClientSettings;
-    private _listeners: Array<(val: GfycatClientSettings) => void>;
+    private _emitter: SimpleEventDispatcher<GfycatClientSettings>;
 
     private _store: Store;
 
     constructor() {
-        this._listeners = new Array<(val: GfycatClientSettings) => void>();
+        this._emitter = new SimpleEventDispatcher<GfycatClientSettings>();
         this._store = new Store();
 
         let self = this;
@@ -50,9 +51,7 @@ export class SettingsHandler {
             keyTar.setPassword(this.SERVICE_NAME, arg.userName, arg.password);
             this._store.set(this.SETTINGS, {userName: arg.userName, paths: arg.paths});
             this._settings = { ...arg, password: this.getPassword.bind(this)};
-            this._listeners.forEach((val) => {
-                val(this._settings);
-            });
+            this._emitter.dispatch(this._settings);
         });
 
         ipcMain.on(GET_SETTINGS, (event: IpcEvent, arg: any) => {
@@ -85,17 +84,15 @@ export class SettingsHandler {
         });
     }
 
-    subscribeToSettingsChanged(listener: (val: GfycatClientSettings) => void) {
-        this._listeners.push(listener);
+    subscribeToSettingsChanged(listener: ISimpleEventHandler<GfycatClientSettings>) {
+        this._emitter.sub(listener);
     }
 
-    unsubscribeToSettingsChanged(listener: (val: GfycatClientSettings) => void) {
-        _.remove(this._listeners, (item) => {
-            return item === listener;
-        });
+    unsubscribeToSettingsChanged(listener: ISimpleEventHandler<GfycatClientSettings>) {
+        this._emitter.unsub(listener);
     }
 
     removeAllListeners() {
-        this._listeners = new Array<(val: GfycatClientSettings) => void>();
+        this._emitter.clear();
     }
 }
