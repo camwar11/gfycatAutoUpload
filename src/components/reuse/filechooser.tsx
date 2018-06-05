@@ -26,13 +26,14 @@ export default class FileChooser extends React.Component<InputProps, any> {
     const css = hasValue ? 'alert-success' : 'alert-warning';
 
     return (
-      <div className='col-sm-12'>
-        <h4 className='list-group-item-heading'>{this.props.label}</h4>
-        <div className={`alert ${css}`}>
-          <span className={`col-sm-9`} onClick={this.openInput.bind(this)}>
+      <div className={'container'}>
+        <div className={`row alert ${css}`}>
+          <div className={'col-xs-9'} onClick={this.openInput.bind(this)}>
             {displayText}
-          </span>
-          {hasValue ? this.renderDeleteButton() : <noscript />}
+          </div>
+          <div className={'col-xs-3'}>
+            {hasValue ? this.renderDeleteButton() : <noscript />}
+          </div>
         </div>
         <input style={{display: 'none'}} type='file' onChange={this.onInputChange.bind(this)} ref='newInput'/>
       </div>
@@ -40,8 +41,8 @@ export default class FileChooser extends React.Component<InputProps, any> {
   }
 
   renderDeleteButton() {
-    return <button className='btn btn-danger float-right' onClick={this.onDelete.bind(this)}><span className='glyphicon glyphicon-trash'>
-      </span>&nbsp;Delete</button>;
+    return <button className='btn btn-danger btn-block float-right' onClick={this.onDelete.bind(this)}>
+      <span className='glyphicon glyphicon-trash'></span>&nbsp;Delete</button>;
   }
 
   openInput() {

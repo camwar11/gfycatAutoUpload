@@ -23,10 +23,12 @@ export default class Input extends React.Component<InputProps, any> {
 
   render() {
     return (
-      <div>
-        <h4 className='list-group-item-heading'>{this.props.label}</h4>
-        <input className='form-control' type={this.props.type} value={this.state.value}
-          onChange={this.onInputChange.bind(this)} ref='newInput'/>
+      <div className='form-group row'>
+        <label className='col-form-label col-xs-2'>{this.props.label}</label>
+        <div className='col-xs-10'>
+          <input className='form-control' type={this.props.type} value={this.state.value}
+            onChange={this.onInputChange.bind(this)} ref='newInput'/>
+        </div>
       </div>
     );
   }

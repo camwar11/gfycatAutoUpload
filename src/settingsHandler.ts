@@ -9,15 +9,18 @@ export const GET_SETTINGS = 'get-settings';
 
 export interface GfycatClientSettingsFromRender extends SettingsBase {
     password: string;
+    apiSecret: string;
 }
 
 export interface SettingsBase {
     userName: string;
+    apiId: string;
     paths: string[];
 }
 
 export interface GfycatClientSettings extends SettingsBase {
     password: () => Promise<string>;
+    apiSecret: () => Promise<string>;
 }
 
 interface IpcEvent {
@@ -38,24 +41,25 @@ export class SettingsHandler {
         this._emitter = new SimpleEventDispatcher<GfycatClientSettings>();
         this._store = new Store();
 
-        let self = this;
-
         const savedSettings = this.retrieveSavedSettings();
 
         if (savedSettings) {
-            this._settings = { ...savedSettings, password: this.getPassword.bind(this) };
+            this._settings = { ...savedSettings, password: this.getPassword.bind(this), apiSecret: this.getAPISecret.bind(this)};
         }
 
         ipcMain.on(SETTINGS_CHANGED, (event: IpcEvent, arg: GfycatClientSettingsFromRender) => {
             console.log('settings changed');
             keyTar.setPassword(this.SERVICE_NAME, arg.userName, arg.password);
-            this._store.set(this.SETTINGS, {userName: arg.userName, paths: arg.paths});
-            this._settings = { ...arg, password: this.getPassword.bind(this)};
+            keyTar.setPassword(this.SERVICE_NAME, arg.apiId, arg.apiSecret);
+            this._store.set(this.SETTINGS, {userName: arg.userName, apiId: arg.apiId, paths: arg.paths});
+            this._settings = { ...arg, password: this.getPassword.bind(this), apiSecret: this.getAPISecret.bind(this)};
             this._emitter.dispatch(this._settings);
         });
 
         ipcMain.on(GET_SETTINGS, (event: IpcEvent, arg: any) => {
-            event.returnValue = this._settings ? {userName: this._settings.userName, paths: this._settings.paths} : null;
+            event.returnValue = this._settings ?
+            {userName: this._settings.userName, apiId: this._settings.apiId, paths: this._settings.paths}
+            : null;
         });
     }
 
@@ -76,6 +80,21 @@ export class SettingsHandler {
             }
 
             keyTar.getPassword(this.SERVICE_NAME, this._settings.userName).then((value) => {
+                resolve(value);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    getAPISecret(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!this._settings || !this._settings.apiId) {
+                reject('ApiId does not exist');
+            }
+
+            keyTar.getPassword(this.SERVICE_NAME, this._settings.apiId).then((value) => {
                 resolve(value);
             })
             .catch((err) => {
