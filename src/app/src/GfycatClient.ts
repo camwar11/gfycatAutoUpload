@@ -44,6 +44,17 @@ interface UploadKeyResponse {
     isOk: boolean;
 }
 
+interface StatusResponse {
+    task: StatusValue;
+}
+
+enum StatusValue {
+    Encoding = 'encoding',
+    Complete = 'complete',
+    NotFound = 'NotFoundo',
+    Error = 'error'
+}
+
 class HTTPError {
     constructor(public errorCode: HttpClient.HttpCodes, private message: string, private body: string) {
     }
@@ -55,12 +66,15 @@ class HTTPError {
 
 enum RequestType {
     POST,
+    GET,
     Upload
 }
 
 export class GfycatClient {
     private _httpClient: HttpClient.HttpClient;
     private static readonly _baseURL = 'https://api.gfycat.com/v1/';
+    private static readonly _gfycatsBaseUrl = `${GfycatClient._baseURL}gfycats/`;
+    private static readonly _fetchStatusUrl = `${GfycatClient._gfycatsBaseUrl}fetch/status/`;
     private _authenticator: Authenticator;
     private _accessToken: string;
 
@@ -78,9 +92,9 @@ export class GfycatClient {
         });
     }
 
-    public UploadVideo(title: string, stream: NodeJS.ReadableStream): Promise<void> {
+    public UploadVideo(title: string, stream: NodeJS.ReadableStream): Promise<string> {
         let self = this;
-        return this.Post<UploadKeyResponse>(GfycatClient._baseURL + 'gfycats', { 'title': title })
+        return this.Post<UploadKeyResponse>(GfycatClient._gfycatsBaseUrl, { 'title': title })
         .then(async (value) => {
             console.log(value);
 
@@ -88,7 +102,7 @@ export class GfycatClient {
             data.append('key', value.gfyname);
             data.append('file', stream, {filename: value.gfyname});
 
-            return new Promise<void>((resolve, reject) => {
+            return new Promise<string>((resolve, reject) => {
                 data.submit('https://' + value.uploadType, (error, response: IHttpResponse) => {
                 if (error) {
                     reject(error);
@@ -99,14 +113,44 @@ export class GfycatClient {
                     reject('Bad status code: ' + response.statusCode);
                 }
 
-                resolve();
+                resolve(value.gfyname);
                 });
             });
         });
     }
 
+    public WaitOnUploadComplete(gfyName: string): Promise<boolean> {
+        let self = this;
+        return this.delay(10000).then(() => {
+            return new Promise<boolean>((resolve, reject) => {
+                self.Get<StatusResponse>(`${GfycatClient._fetchStatusUrl}${gfyName}`)
+                .then((response) => {
+                    switch (response.task) {
+                        case StatusValue.Complete:
+                            resolve(true);
+                            break;
+                        case StatusValue.Encoding:
+                            self.WaitOnUploadComplete(gfyName).then(resolve, reject);
+                            break;
+                        default:
+                            reject('Error');
+                            break;
+                    }
+                });
+            });
+        });
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     public Post<T>(url: string, payload: any, autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient): Promise<T> {
         return this.Request<T>(RequestType.POST, url, payload, true, autoAuth, httpClient);
+    }
+
+    public Get<T>(url: string, autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient): Promise<T> {
+        return this.Request<T>(RequestType.GET, url, undefined, true, autoAuth, httpClient);
     }
 
     public SendStream<T>(url: string, stream: NodeJS.ReadableStream, autoAuth: boolean = true,
@@ -118,7 +162,7 @@ export class GfycatClient {
             autoAuth: boolean = true, httpClient: HttpClient.HttpClient = this._httpClient, additionalHeaders?: IHeaders): Promise<T> {
         let self = this;
         return new Promise<T>((resolve, reject) => {
-            let data = jsonifyPayload ? JSON.stringify(payload) : payload;
+            let data = jsonifyPayload && payload ? JSON.stringify(payload) : payload;
             let starter: Promise<void>;
             if (autoAuth === true) {
                 starter = self._authenticator.Authenticate();
@@ -130,6 +174,9 @@ export class GfycatClient {
             switch (type) {
                 case RequestType.POST:
                     request = starter.then(() => { return httpClient.post(url, data); });
+                    break;
+                case RequestType.GET:
+                    request = starter.then(() => { return httpClient.get(url); });
                     break;
                 case RequestType.Upload:
                     request = starter.then(() => {
