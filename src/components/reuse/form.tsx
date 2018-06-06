@@ -5,7 +5,9 @@ import * as _ from 'lodash';
 
 interface FormProps {
   userName?: string;
+  password?: string;
   apiId?: string;
+  apiSecret?: string;
   handleSubmit?: (event: any) => void;
   paths?: string[];
 }
@@ -24,10 +26,19 @@ export default class Form extends React.Component<FormProps, FormState> {
 
     this.state = {
       userName: props.userName ? props.userName : '',
-      apiId: props.apiId ? props.userName : '',
-      apiSecret: '',
-      password: '',
+      apiId: props.apiId ? props.apiId : '',
+      apiSecret: props.apiSecret ? props.apiSecret : '',
+      password: props.password ? props.password : '',
       paths: props.paths ? props.paths : []};
+  }
+
+  componentWillReceiveProps(props: FormProps) {
+    this.setState({
+      userName: props.userName ? props.userName : '',
+      apiId: props.apiId ? props.apiId : '',
+      apiSecret: props.apiSecret ? props.apiSecret : '',
+      password: props.password ? props.password : '',
+      paths: props.paths ? props.paths : []});
   }
 
   render() {
@@ -38,13 +49,13 @@ export default class Form extends React.Component<FormProps, FormState> {
             <Input label='User Name:' type='input' value={this.state.userName} onChange={this.updateUserName.bind(this)}/>
           </div>
           <div className='form-group row'>
-            <Input label='Password:' type='password' onChange={this.updatePassword.bind(this)}/>
+            <Input label='Password:' type='password' value={this.state.password} onChange={this.updatePassword.bind(this)}/>
           </div>
           <div className='form-group row'>
             <Input label='Api Id:' type='input' value={this.state.apiId} onChange={this.updateApiId.bind(this)}/>
           </div>
           <div className='form-group row'>
-            <Input label='Api Secret:' type='password' onChange={this.updateApiSecret.bind(this)}/>
+            <Input label='Api Secret:' type='password' value={this.state.apiSecret} onChange={this.updateApiSecret.bind(this)}/>
           </div>
           {this.renderPathInputs()}
           <div className='form-group row'>

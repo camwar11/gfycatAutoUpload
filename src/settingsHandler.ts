@@ -6,6 +6,7 @@ import { SimpleEventDispatcher, ISimpleEventHandler } from 'strongly-typed-event
 
 export const SETTINGS_CHANGED = 'settings-changed';
 export const GET_SETTINGS = 'get-settings';
+export const RETURN_SETTINGS = 'return-settings';
 
 export interface GfycatClientSettingsFromRender extends SettingsBase {
     password: string;
@@ -56,10 +57,14 @@ export class SettingsHandler {
             this._emitter.dispatch(this._settings);
         });
 
+        let self = this;
         ipcMain.on(GET_SETTINGS, (event: IpcEvent, arg: any) => {
-            event.returnValue = this._settings ?
-            {userName: this._settings.userName, apiId: this._settings.apiId, paths: this._settings.paths}
-            : null;
+            this._settings.password().then((password) => {
+                self._settings.apiSecret().then((secret) => {
+                    let newSettings: GfycatClientSettingsFromRender = {...self._settings, password: password, apiSecret: secret};
+                    event.sender.send(RETURN_SETTINGS, newSettings);
+                });
+            });
         });
     }
 

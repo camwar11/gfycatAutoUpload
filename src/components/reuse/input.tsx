@@ -21,6 +21,10 @@ export default class Input extends React.Component<InputProps, any> {
     }
   }
 
+  componentWillReceiveProps(props: InputProps) {
+    this.setState({...props});
+  }
+
   render() {
     return (
       <div className='form-group row'>

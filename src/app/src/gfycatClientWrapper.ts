@@ -103,6 +103,7 @@ export class GfycatClientWrapper {
                     console.log('Done');
                 })
                 .catch((reason) => {
+                    self._newVideoHandler.dispatch({ title: 'Error Uploading', message: `${reason}`});
                     console.error(reason);
                 });
             });
