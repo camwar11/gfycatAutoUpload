@@ -1,40 +1,50 @@
 import Form from './reuse/form';
 import Input from './reuse/input';
 import { BreadCrumb } from './reuse/breadcrumb';
-import { GET_SETTINGS, GfycatClientSettingsFromRender, SETTINGS_CHANGED, SettingsBase } from '../settingsHandler';
+import { GET_SETTINGS, GfycatClientSettingsFromRender, SETTINGS_CHANGED, RETURN_SETTINGS } from '../settingsHandler';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 
-export default class Settings extends React.Component<any, {userName: string, paths: string[]}> {
+export default class Settings extends React.Component<any, GfycatClientSettingsFromRender> {
+  _defaultSettings: GfycatClientSettingsFromRender = {userName: '', apiId: '', password: '', apiSecret: '', paths: []};
+
   constructor(props: any) {
     super(props);
 
-    this.state = this.getSavedSettings();
+    this.state = this._defaultSettings;
+
+    ipcRenderer.on(RETURN_SETTINGS, (event: any, args: GfycatClientSettingsFromRender) => {
+      this.updateState(args);
+    });
   }
 
   render() {
     return (
-      <div>
-        <h2>Welcome to Settings!</h2>
-        <Form userName={this.state.userName} paths={this.state.paths} handleSubmit={this.handleSubmit.bind(this)} />
+      <div className='container'>
+        <h2>Settings</h2>
+        <Form userName={this.state.userName} paths={this.state.paths} apiId={this.state.apiId} password={this.state.password}
+          apiSecret={this.state.apiSecret} handleSubmit={this.handleSubmit.bind(this)} />
       </div>
     );
+  }
+
+  componentDidMount() {
+    this.getSavedSettings();
   }
 
   handleSubmit(event: GfycatClientSettingsFromRender) {
     //history.pushState('/', 'Home');
     ipcRenderer.send(SETTINGS_CHANGED, event);
-    this.updateState({userName: event.userName, paths: event.paths});
+    this.updateState({...event, password: this.state.password, apiSecret: this.state.apiSecret});
   }
 
-  getSavedSettings(): SettingsBase {
-    let settings = ipcRenderer.sendSync(GET_SETTINGS);
-    return settings ? settings : {userName: '', paths: []};
+  getSavedSettings() {
+    ipcRenderer.send(GET_SETTINGS);
   }
 
-  updateState(value: SettingsBase) {
+  updateState(value: GfycatClientSettingsFromRender) {
     this.setState((prev) => {
-      let newState = {...prev, userName: value.userName};
+      let newState = {...prev, ...value};
       newState = {...newState, paths: [...value.paths]};
       return newState;
     });

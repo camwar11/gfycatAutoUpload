@@ -23,14 +23,16 @@ export class GfycatClientWrapper {
             _settings = {
                 userName: '',
                 password: () => Promise.resolve(''),
+                apiId: '',
+                apiSecret: () => Promise.resolve(''),
                 paths: []
             };
         }
         this._apiConfig = {
-            clientId: Config.id,
-            clientSecret: Config.secret,
             userName: _settings.userName,
-            password: _settings.password
+            password: _settings.password,
+            clientId: _settings.apiId,
+            clientSecret: _settings.apiSecret
         };
 
         this._newVideoHandler = new SimpleEventDispatcher();
@@ -101,6 +103,7 @@ export class GfycatClientWrapper {
                     console.log('Done');
                 })
                 .catch((reason) => {
+                    self._newVideoHandler.dispatch({ title: 'Error Uploading', message: `${reason}`});
                     console.error(reason);
                 });
             });

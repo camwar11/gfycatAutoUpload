@@ -5,7 +5,7 @@ import * as FormData from 'form-data';
 
 export interface ApiConfig {
     clientId: string;
-    clientSecret: string;
+    clientSecret: () => Promise<string>;
     userName: string;
     password: () => Promise<string>;
 }
@@ -285,27 +285,30 @@ class Authenticator implements IRequestHandler {
         const apiConfig = this._apiConfig;
 
         return apiConfig.password().then((password) => {
-            const payload = new PasswordGrantPayload(apiConfig.clientId, apiConfig.clientSecret, apiConfig.userName, password);
-            return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, payload, false, self._httpClient)
+            return apiConfig.clientSecret().then((clientSecret) => {
+                const payload = new PasswordGrantPayload(apiConfig.clientId, clientSecret, apiConfig.userName, password);
+                return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, payload, false, self._httpClient)
+                .then((value) => {
+                    self._authResponse = value;
+                    self._lastResponseTime = Date.now();
+                    return value.access_token;
+                });
+            });
+        });
+    }
+
+    private RefreshToken(): Promise<string> {
+        let self = this;
+        return this._apiConfig.clientSecret().then((secret) => {
+            let refreshPayload = new RefreshTokenPayload(self._apiConfig.clientId, secret,
+                self._authResponse.refresh_token);
+
+            return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, refreshPayload, false, self._httpClient)
                 .then((value) => {
                     self._authResponse = value;
                     self._lastResponseTime = Date.now();
                     return value.access_token;
                 });
         });
-    }
-
-    private RefreshToken(): Promise<string> {
-        let self = this;
-        let refreshPayload = new RefreshTokenPayload(this._apiConfig.clientId, this._apiConfig.clientSecret,
-            self._authResponse.refresh_token);
-
-        return self._gfycatClient.Post<TokenResponsePayload>(self._baseURL, refreshPayload, false, self._httpClient)
-            .then((value) => {
-                self._authResponse = value;
-                self._lastResponseTime = Date.now();
-                return value.access_token;
-            });
-
     }
 }
